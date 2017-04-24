@@ -98,3 +98,4 @@ cat <<EOF >$SHIM
 EOF
 chmod +x $SHIM
 cp $SHIM $BIN_DIR/google-chrome
+npm run ./run-test-setup.sh
