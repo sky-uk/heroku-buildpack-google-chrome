@@ -98,4 +98,49 @@ cat <<EOF >$SHIM
 EOF
 chmod +x $SHIM
 cp $SHIM $BIN_DIR/google-chrome
-npm run ./run-test-setup.sh
+
+# TEST SETUP
+mkdir -p ui-tests
+cd ./ui-tests
+
+#Install maven
+curl http://www.mirrorservice.org/sites/ftp.apache.org/maven/binaries/apache-maven-3.2.2-bin.tar.gz -o apache-maven.tar.gz
+tar xvf apache-maven.tar.gz
+
+# Remove existing downloads and binaries (if they exist) so we can start from scratch.
+rm ~/google-chrome-stable_current_amd64.deb
+rm ~/chromedriver_linux64.zip
+rm /usr/local/bin/chromedriver
+rm /usr/local/share/chromedriver
+
+# Install dependencies.
+apt-get update
+apt-get install -y openjdk-8-jre-headless xvfb libxi6 libgconf-2-4
+
+# Install Chrome.
+wget -N https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb -P ~/
+dpkg -i --force-depends ~/google-chrome-stable_current_amd64.deb
+apt-get -f install -y
+dpkg -i --force-depends ~/google-chrome-stable_current_amd64.deb
+
+# Install ChromeDriver.
+wget -N http://chromedriver.storage.googleapis.com/2.29/chromedriver_linux64.zip -P ~/
+unzip ~/chromedriver_linux64.zip -d ~/
+rm ~/chromedriver_linux64.zip
+export PATH=$PATH:~/chromedriver
+chmod 775 /usr/local/share/
+chmod 775 /usr/local/bin/
+cp -f ~/chromedriver /usr/local/share/
+chmod +x /usr/local/share/chromedriver
+ln -s /usr/local/share/chromedriver /usr/local/bin/chromedriver
+
+# Install Firefox
+wget https://ftp.mozilla.org/pub/firefox/releases/46.0/linux-x86_64/en-US/firefox-46.0.tar.bz2
+tar -xjf firefox-46.0.tar.bz2
+export PATH=$PATH:/firefox
+echo after firefox
+echo $PATH
+mv firefox /opt/firefox46
+ln -s /opt/firefox46/firefox /usr/bin/firefox
+
+git clone git@github.com:sky-uk/shop-ui-tests.git
